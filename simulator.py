@@ -1,6 +1,8 @@
 import streamlit as st
 import pandas as pd
 import random as rd
+import plotly.express as px
+import plotly.graph_objects as go
 
 class HomeTeam:
     def __init__(self, team, data):
@@ -50,17 +52,56 @@ def sim_game(home, away):
     else:
         return away
 
+st.set_page_config(page_title='IPL Dashboard by Viren', layout="wide", page_icon='favicon.ico')
 @st.cache
 def load_data():
     matches = pd.read_csv("all_season_summary.csv")
     return matches
 
 df = load_data()
+
+st.markdown("<h1 style='text-align: center;'>Viren's IPL Dashboard  </h1>", unsafe_allow_html=True)
+c1, c2 = st.beta_columns([3,2])
+c1.header('2021 Analysis')
+c1.subheader('This space will be updated regularly during the IPL-2021 season')
 teams = {'Chennai Super Kings': 'CSK', 'Royal Challengers Bangalore': 'RCB', 'Mumbai Indians': 'MI', 'Punjab Kings': 'KXIP', 'Sunrisers Hyederabad': 'SRH', 'Delhi Capitals': 'DC', 'Rajasthan Royals': 'RR', 'Kolkata Knight Riders': 'KKR'}
 team_list = list(teams.keys())
-home_team = st.selectbox('Home Team:', team_list)
+c2.header('IPL Simulator')
+home_team = c2.selectbox('Home Team:', team_list)
 team_list.remove(home_team)
-away_team = st.selectbox('Away Team:', team_list)
+away_team = c2.selectbox('Away Team:', team_list)
 
 sim = sim_game(teams[home_team], teams[away_team])
-st.write(sim)
+c2.image(f'{sim.lower()}.png', width=200)
+
+st.header('Story So Far')
+c3, c4 = st.beta_columns(2)
+s = df.winner.value_counts()
+win_df = pd.DataFrame({'Team': s.index, 'Wins': s.values})
+layout = go.Layout(
+    template='plotly_white',
+    xaxis=dict(title_text=''),
+    yaxis=dict(title_text=''),
+    legend=dict(title_text=''),
+    title=dict(x=0.5, y=0.9)
+)
+win_fig = px.bar(win_df, x='Team', y='Wins', template='plotly_white')
+c3.plotly_chart(win_fig)
+
+toss_dec = df.decision.value_counts()
+toss_dec_df = pd.DataFrame({'Toss': toss_dec.index, 'Count': toss_dec.values})
+toss_dec_fig = px.bar(toss_dec_df, x='Toss', y='Count', template='plotly_white')
+c4.plotly_chart(toss_dec_fig)
+
+c5, c6, c7 = st.beta_columns(3)
+toss_won = df.toss_won.value_counts()
+toss_won_df = pd.DataFrame({'Team': toss_won.index, 'Number of Toss Won': toss_won.values})
+
+toss_won_fig = px.bar(toss_won_df, x='Team', y='Number of Toss Won', template='plotly_white')
+c5.plotly_chart(toss_won_fig)
+
+total_matches = df.shape[0]
+home_wins = df[df['winner'] == df['home_team']].shape[0]
+away_wins = df[df['winner'] == df['away_team']].shape[0]
+home_win_percent_fig = go.Figure(data=[go.Pie(labels=['Home Team Wins', 'Away Team Wins'], values=[home_wins, away_wins], hole=.5)])
+c6.plotly_chart(home_win_percent_fig)
