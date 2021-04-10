@@ -61,7 +61,7 @@ def load_data():
 df = load_data()
 
 st.markdown("<h1 style='text-align: center;'>Viren's IPL Dashboard  </h1>", unsafe_allow_html=True)
-c1, c2 = st.beta_columns([3,2])
+c1, c2 = st.beta_columns((3,2))
 c1.header('2021 Analysis')
 c1.subheader('This space will be updated regularly during the IPL-2021 season')
 teams = {'Chennai Super Kings': 'CSK', 'Royal Challengers Bangalore': 'RCB', 'Mumbai Indians': 'MI', 'Punjab Kings': 'KXIP', 'Sunrisers Hyederabad': 'SRH', 'Delhi Capitals': 'DC', 'Rajasthan Royals': 'RR', 'Kolkata Knight Riders': 'KKR'}
@@ -77,31 +77,56 @@ c2.image(f'{sim.lower()}.png', width=200)
 st.header('Story So Far')
 c3, c4 = st.beta_columns(2)
 s = df.winner.value_counts()
-win_df = pd.DataFrame({'Team': s.index, 'Wins': s.values})
+win_df = pd.DataFrame({'Team': s.index, 'Wins': s.values}).nlargest(8, 'Wins')
 layout = go.Layout(
-    template='plotly_white',
-    xaxis=dict(title_text=''),
-    yaxis=dict(title_text=''),
+    template='plotly_dark',
+    xaxis=dict(title_text='', showgrid=False),
+    yaxis=dict(showgrid=False),
     legend=dict(title_text=''),
-    title=dict(x=0.5, y=0.9)
+    title=dict(x=0.5, y=0.9),
+    width=600
 )
-win_fig = px.bar(win_df, x='Team', y='Wins', template='plotly_white')
+win_fig = go.Figure(data=[go.Bar(
+    x=win_df['Team'],
+    y=win_df['Wins'],
+    width=[0.6,0.6,0.6,0.6,0.6,0.6,0.6,0.6]
+)], layout=layout)
+c3.subheader('Total Wins')
 c3.plotly_chart(win_fig)
 
 toss_dec = df.decision.value_counts()
 toss_dec_df = pd.DataFrame({'Toss': toss_dec.index, 'Count': toss_dec.values})
-toss_dec_fig = px.bar(toss_dec_df, x='Toss', y='Count', template='plotly_white')
+toss_dec_fig = go.Figure(data=[go.Bar(
+    x=toss_dec_df['Toss'],
+    y=toss_dec_df['Count'],
+    width=[0.2,0.2,0.2]
+)], layout=layout)
+c4.subheader('Toss Decisions')
 c4.plotly_chart(toss_dec_fig)
 
-c5, c6, c7 = st.beta_columns(3)
+c5, c6 = st.beta_columns(2)
 toss_won = df.toss_won.value_counts()
-toss_won_df = pd.DataFrame({'Team': toss_won.index, 'Number of Toss Won': toss_won.values})
-
-toss_won_fig = px.bar(toss_won_df, x='Team', y='Number of Toss Won', template='plotly_white')
+toss_won_df = pd.DataFrame({'Team': toss_won.index, 'Number of Toss Won': toss_won.values}).nlargest(8, 'Number of Toss Won')
+toss_won_fig = go.Figure(data=[go.Bar(
+    x=toss_won_df['Team'],
+    y=toss_won_df['Number of Toss Won'],
+    width=[0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4]
+)], layout=layout)
+c5.subheader('Toss Wins')
 c5.plotly_chart(toss_won_fig)
 
-total_matches = df.shape[0]
-home_wins = df[df['winner'] == df['home_team']].shape[0]
-away_wins = df[df['winner'] == df['away_team']].shape[0]
-home_win_percent_fig = go.Figure(data=[go.Pie(labels=['Home Team Wins', 'Away Team Wins'], values=[home_wins, away_wins], hole=.5)])
-c6.plotly_chart(home_win_percent_fig)
+# total_matches = df.shape[0]
+# home_wins = df[df['winner'] == df['home_team']].shape[0]
+# away_wins = df[df['winner'] == df['away_team']].shape[0]
+# home_win_percent_fig = go.Figure(data=[go.Pie(labels=['Home Team Wins', 'Away Team Wins'], values=[home_wins, away_wins], hole=.5)])
+# c6.plotly_chart(home_win_percent_fig)
+
+pom = df.pom.value_counts()
+pom_df = pd.DataFrame({'Player': pom.index, 'Wins': pom.values}).nlargest(10, 'Wins')
+pom_fig = go.Figure(data=[go.Bar(
+    x=pom_df['Player'],
+    y=pom_df['Wins'],
+    width=[0.6,0.6,0.6,0.6,0.6,0.6,0.6,0.6,0.6,0.6]
+)], layout=layout)
+c6.subheader('Player of the Match')
+c6.plotly_chart(pom_fig)
