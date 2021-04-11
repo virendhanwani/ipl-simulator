@@ -52,6 +52,24 @@ def sim_game(home, away):
     else:
         return away
 
+def SetColor(x):
+        if(x == 'CSK'):
+            return '#F9CD05'
+        elif(x == 'RCB'):
+            return '#EC1C24'
+        elif(x == 'SRH'):
+            return '#FF822A'
+        elif(x == 'KKR'):
+            return '#2E0854'
+        elif(x == 'KXIP'):
+            return '#DCDDDF'
+        elif(x == 'RR'):
+            return '#254AA5'
+        elif(x == 'DC'):
+            return '#00008B'
+        elif(x == 'MI'):
+            return '#004BA0'
+
 st.set_page_config(page_title='IPL Dashboard by Viren', layout="wide", page_icon='favicon.ico')
 @st.cache
 def load_data():
@@ -60,13 +78,50 @@ def load_data():
 
 df = load_data()
 
+layout = go.Layout(
+    template='plotly_dark',
+    xaxis=dict(title_text='', showgrid=False),
+    yaxis=dict(showgrid=False),
+    legend=dict(title_text=''),
+    title=dict(x=0.5, y=0.9),
+    width=600
+)
+
+new_layout = go.Layout(
+    template='plotly_dark',
+    xaxis=dict(title_text='', showgrid=False),
+    yaxis=dict(showgrid=False),
+    legend=dict(title_text=''),
+    title=dict(x=0.5, y=0.9),
+    width=600,
+    showlegend=False
+)
+
 st.markdown("<h1 style='text-align: center;'>Viren's IPL Dashboard  </h1>", unsafe_allow_html=True)
 c1, c2 = st.beta_columns((3,2))
 c1.header('2021 Analysis')
 c1.subheader('This space will be updated regularly during the IPL-2021 season')
+new_df = df[df['season']==2021]
+new_fig = go.Figure(data=[
+    go.Bar(
+        x=new_df['short_name'],
+        y=df['home_runs'],
+        marker=dict(color=list(map(SetColor, new_df['home_team']))),
+        width=[0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4]
+    ),
+    go.Bar(
+        x=new_df['short_name'],
+        y=df['away_runs'],
+        marker=dict(color=list(map(SetColor, new_df['away_team']))),
+        width=[0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4]
+    )
+], layout=new_layout)
+new_fig.update_layout(barmode='group')
+c1.plotly_chart(new_fig)
+
+c2.header('IPL Simulator')
 teams = {'Chennai Super Kings': 'CSK', 'Royal Challengers Bangalore': 'RCB', 'Mumbai Indians': 'MI', 'Punjab Kings': 'KXIP', 'Sunrisers Hyederabad': 'SRH', 'Delhi Capitals': 'DC', 'Rajasthan Royals': 'RR', 'Kolkata Knight Riders': 'KKR'}
 team_list = list(teams.keys())
-c2.header('IPL Simulator')
 home_team = c2.selectbox('Home Team:', team_list)
 team_list.remove(home_team)
 away_team = c2.selectbox('Away Team:', team_list)
@@ -78,14 +133,6 @@ st.header('Story So Far')
 c3, c4 = st.beta_columns(2)
 s = df.winner.value_counts()
 win_df = pd.DataFrame({'Team': s.index, 'Wins': s.values}).nlargest(8, 'Wins')
-layout = go.Layout(
-    template='plotly_dark',
-    xaxis=dict(title_text='', showgrid=False),
-    yaxis=dict(showgrid=False),
-    legend=dict(title_text=''),
-    title=dict(x=0.5, y=0.9),
-    width=600
-)
 win_fig = go.Figure(data=[go.Bar(
     x=win_df['Team'],
     y=win_df['Wins'],
