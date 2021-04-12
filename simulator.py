@@ -97,6 +97,17 @@ new_layout = go.Layout(
     showlegend=False
 )
 
+full_layout = go.Layout(
+    template='plotly_dark',
+    xaxis=dict(title_text='', showgrid=False),
+    yaxis=dict(showgrid=False),
+    legend=dict(title_text=''),
+    title=dict(x=0.5, y=0.9),
+    showlegend=False,
+    height=600,
+    width=1200
+)
+
 st.markdown("<h1 style='text-align: center;'>Viren's IPL Dashboard  </h1>", unsafe_allow_html=True)
 c1, c2 = st.beta_columns((3,2))
 c1.header('2021 Analysis')
@@ -177,3 +188,12 @@ pom_fig = go.Figure(data=[go.Bar(
 )], layout=layout)
 c6.subheader('Player of the Match')
 c6.plotly_chart(pom_fig)
+
+df['boundaries'] = df['home_boundaries'] + df['away_boundaries']
+venue_boundaries_fig = go.Figure(data=[go.Bar(
+    x=df['boundaries'],
+    y=df['venue_name'],
+    orientation='h'
+)], layout=full_layout)
+st.subheader('Boundaries per Venue')
+st.write(venue_boundaries_fig)
