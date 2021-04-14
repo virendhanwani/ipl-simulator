@@ -108,6 +108,16 @@ full_layout = go.Layout(
     width=1200
 )
 
+ind_layout = go.Layout(
+    template='plotly_dark',
+    xaxis=dict(title_text='', showgrid=False),
+    yaxis=dict(showgrid=False),
+    legend=dict(title_text=''),
+    title=dict(x=0.5, y=0.9),
+    width=300,
+    showlegend=False
+)
+
 st.markdown("<h1 style='text-align: center;'>Viren's IPL Dashboard  </h1>", unsafe_allow_html=True)
 c1, c2 = st.beta_columns((3,2))
 c1.header('2021 Analysis')
@@ -139,6 +149,25 @@ away_team = c2.selectbox('Away Team:', team_list)
 
 sim = sim_game(teams[home_team], teams[away_team])
 c2.image(f'{sim.lower()}.png', width=200)
+
+c7,c8,c9 = st.beta_columns(3)
+bowl_first = (new_df[new_df['decision'] == 'BOWL FIRST'].shape[0] / new_df.shape[0]) * 100
+toss_chart = go.Figure(data=[go.Indicator(
+    value=bowl_first,
+    title= {'text': '% of deciding to bowl first'},
+    mode='gauge+number',
+    gauge= { 'axis': {'visible': False, 'range': [0,100]}},
+)], layout= ind_layout)
+c7.plotly_chart(toss_chart)
+
+home_win_percent = (new_df[new_df['winner'] == new_df['home_team']].shape[0] / new_df.shape[0]) * 100
+home_win_chart = go.Figure(data=[go.Indicator(
+    value=home_win_percent,
+    mode='gauge+number',
+    title= {'text': 'Home Team Win %'},
+    gauge= { 'axis': {'visible': False, 'range': [0,100]}},
+)], layout= ind_layout)
+c8.plotly_chart(home_win_chart)
 
 st.header('Story So Far')
 c3, c4 = st.beta_columns(2)
@@ -173,8 +202,7 @@ toss_won_fig = go.Figure(data=[go.Bar(
 c5.subheader('Toss Wins')
 c5.plotly_chart(toss_won_fig)
 
-# total_matches = df.shape[0]
-# home_wins = df[df['winner'] == df['home_team']].shape[0]
+
 # away_wins = df[df['winner'] == df['away_team']].shape[0]
 # home_win_percent_fig = go.Figure(data=[go.Pie(labels=['Home Team Wins', 'Away Team Wins'], values=[home_wins, away_wins], hole=.5)])
 # c6.plotly_chart(home_win_percent_fig)
@@ -189,9 +217,8 @@ pom_fig = go.Figure(data=[go.Bar(
 c6.subheader('Player of the Match')
 c6.plotly_chart(pom_fig)
 
-df['boundaries'] = df['home_boundaries'] + df['away_boundaries']
 venue_boundaries_fig = go.Figure(data=[go.Bar(
-    x=df['boundaries'],
+    x=df['total_boundaries'],
     y=df['venue_name'],
     orientation='h'
 )], layout=full_layout)
