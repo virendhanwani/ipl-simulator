@@ -154,7 +154,7 @@ c7,c8,c9 = st.beta_columns(3)
 bowl_first = (new_df[new_df['decision'] == 'BOWL FIRST'].shape[0] / new_df.shape[0]) * 100
 toss_chart = go.Figure(data=[go.Indicator(
     value=bowl_first,
-    title= {'text': '% of deciding to bowl first'},
+    title= {'text': 'Toss Win & Bowl First %'},
     mode='gauge+number',
     gauge= { 'axis': {'visible': False, 'range': [0,100]}},
 )], layout= ind_layout)
@@ -165,9 +165,18 @@ home_win_chart = go.Figure(data=[go.Indicator(
     value=home_win_percent,
     mode='gauge+number',
     title= {'text': 'Home Team Win %'},
-    gauge= { 'axis': {'visible': False, 'range': [0,100]}},
+    gauge= { 'axis': {'visible': False, 'range': [0,100]}, 'bar': {'color': 'red'}},
 )], layout= ind_layout)
 c8.plotly_chart(home_win_chart)
+
+bowl_first_win_percent = (new_df[new_df['2nd_in_win'] == True].shape[0] / new_df.shape[0]) * 100
+bowl_first_win_chart = go.Figure(data=[go.Indicator(
+    value=bowl_first_win_percent,
+    mode='gauge+number',
+    title= {'text': 'Bowl First Win %'},
+    gauge= {'axis': {'visible': False, 'range': [0,100]}, 'bar': {'color': 'yellow'}}
+)], layout=ind_layout)
+c9.plotly_chart(bowl_first_win_chart)
 
 st.header('Story So Far')
 c3, c4 = st.beta_columns(2)
@@ -201,11 +210,6 @@ toss_won_fig = go.Figure(data=[go.Bar(
 )], layout=layout)
 c5.subheader('Toss Wins')
 c5.plotly_chart(toss_won_fig)
-
-
-# away_wins = df[df['winner'] == df['away_team']].shape[0]
-# home_win_percent_fig = go.Figure(data=[go.Pie(labels=['Home Team Wins', 'Away Team Wins'], values=[home_wins, away_wins], hole=.5)])
-# c6.plotly_chart(home_win_percent_fig)
 
 pom = df.pom.value_counts()
 pom_df = pd.DataFrame({'Player': pom.index, 'Wins': pom.values}).nlargest(10, 'Wins')
