@@ -165,7 +165,7 @@ home_win_chart = go.Figure(data=[go.Indicator(
     value=home_win_percent,
     mode='gauge+number',
     title= {'text': 'Home Team Win %'},
-    gauge= { 'axis': {'visible': False, 'range': [0,100]}, 'bar': {'color': 'red'}},
+    gauge= { 'axis': {'visible': False, 'range': [0,100]}, 'bar': {'color': 'yellow'}},
 )], layout= ind_layout)
 c8.plotly_chart(home_win_chart)
 
